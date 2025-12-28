@@ -4,26 +4,6 @@
 
     
 
-    {% comment %} headline post {% endcomment %}
-    {% for i in featured_posts %}  
-    {% if forloop.first %}
-
-    <div class="p-5 mb-4 text-white bg-dark rounded-3"
-        style="background-image: url('{{ i.featured_image.url }}');
-        background-blend-mode: overlay;
-        background-size: cover;">
-        <div class="col-md-8 px-0">
-            <h1 class="display-4 fw-bold">{{ i.title }}</h1>
-            <p class="lead my-3">{{ i.short_description | truncatewords:25 }}</p>
-            <p class="lead mb-0">
-                <a href="#" class="text-white fw-bold">Continue reading...</a>
-            </p>
-        </div>
-    </div>
-
-    {% endif %}
-    {% endfor %}
-
 
     {% comment %} Featured posts {% endcomment %}
     <h3 class="text-uppercase text-danger" style="letter-spacing: 2px;">Category - {{ category }}</h3>
@@ -35,7 +15,9 @@
         <div class="col-md-6">
             <div class="card border-0" >
                 <div class="card-body">
-                    <h3>{{ i.title }}</h3>
+                    <h3>
+                        <a href="{% url 'blogs' i.slug %}" class="text-dark">{{ i.title }}</a>
+                    </h3>
                     <small class="mb-1 text-muted">{{ i.created_at | timesince}} ago | {{ i.author }}</small>
                     <p class="card-text">{{ i.short_description | truncatewords:25 }}</p>
                 </div>
