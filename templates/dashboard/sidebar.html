@@ -9,6 +9,17 @@
             ">
                 Dashboard
             </a>
+            {% if perms.auth.view_user %}
+            <a href="{% url 'users' %}" class="nav-link text-dark    
+                {% if '/users/' in request.path %}
+                bg-danger
+                text-white
+                fw-bold 
+                {% endif %}
+            ">
+                Users
+            </a>
+            {% endif %}
             <a href="{% url 'categories' %}" class="nav-link text-dark 
                 {% if '/categories/' in request.path %}
                 bg-danger
@@ -25,7 +36,7 @@
                 text-white
                 {% endif %}
             ">
-                Post
+                Posts
             </a>
             <a href="" class="nav-link text-dark">Logout</a>
         </div>

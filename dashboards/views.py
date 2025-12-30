@@ -1,8 +1,9 @@
 from django.shortcuts import get_object_or_404, render, redirect
-from blogs.models import Blog, Category
+from blogs.models import Blog, Category 
 from django.contrib.auth.decorators import login_required
-from .forms import CategoryForm, BlogPostForm
+from .forms import CategoryForm, BlogPostForm, AddUserForm, EditUserForm
 from django.template.defaultfilters import slugify
+from django.contrib.auth.models import User
 
 @login_required(login_url='login')
 def dashboard(request):
@@ -108,3 +109,50 @@ def delete_post(request, pk):
     post = Blog.objects.get(pk=pk)
     post.delete()
     return redirect('posts')
+
+def users(request):
+    users = User.objects.all()
+    context = {
+        'users': users,
+    }
+    return render(request, 'dashboard/users.html', context)
+
+def add_user(request):
+    if request.method == 'POST':
+        form = AddUserForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
+            if User.objects.filter(username=username).exists():
+                form.add_error('username', 'Username_Already_Exist')
+            elif User.objects.filter(email=email).exists():
+                form.add_error('email', 'Email_Already_Exists')
+            else:
+                form.save()
+                return redirect('users')
+    else:
+        form = AddUserForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'dashboard/add_user.html', context)
+
+def edit_user(request, pk):
+    user = User.objects.get(pk=pk)
+    if request.method == 'POST':
+        form = EditUserForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('users')
+    else:
+        form = EditUserForm(instance=user)
+    context = {
+        'user':user,
+        'form':form,
+    }
+    return render(request, 'dashboard/edit_user.html', context)
+
+def delete_user(request, pk):
+    user = User.objects.get(pk=pk)
+    user.delete()
+    return redirect('users')
