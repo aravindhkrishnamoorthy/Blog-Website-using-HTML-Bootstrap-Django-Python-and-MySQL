@@ -1,7 +1,8 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from blogs.models import Blog, Category
 from django.contrib.auth.decorators import login_required
-from .forms import CategoryForm
+from .forms import CategoryForm, BlogPostForm
+from django.template.defaultfilters import slugify
 
 @login_required(login_url='login')
 def dashboard(request):
@@ -56,3 +57,54 @@ def delete_category(request, pk):
     category = Category.objects.filter(pk=pk)
     category.delete()
     return redirect('categories')
+
+
+def posts(request):
+    posts = Blog.objects.all()
+    context = {
+        'posts': posts,
+    }
+    return render(request, 'dashboard/posts.html', context)
+
+def add_post(request):
+    if request.method == 'POST':
+        form = BlogPostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False) #temporarily saving the form
+            post.author = request.user
+            post.save()  #save to get the id
+            title = form.cleaned_data['title']
+            post.slug = slugify(title)+ '-'+str(post.id) 
+            post.save()
+            return redirect('posts')
+        else:
+            print('error hapeening')
+            print(form.errors)
+    form = BlogPostForm()
+    context = {
+        'form': form,
+    }
+    return render(request, 'dashboard/add_post.html', context)
+
+def edit_post(request, pk):
+    blog = Blog.objects.get(pk=pk)
+    if request.method == 'POST':
+        form = BlogPostForm(request.POST, request.FILES, instance=blog)
+        if form.is_valid():
+            post = form.save()
+            title = form.cleaned_data['title']
+            post.slug = slugify(title)+'-'+str(post.id)
+            post.save()
+            return redirect('posts')
+    
+    form = BlogPostForm(instance=blog)
+    context = {
+        'form': form,
+        'blog': blog,
+    }
+    return render(request, 'dashboard/edit_post.html', context)
+
+def delete_post(request, pk):
+    post = Blog.objects.get(pk=pk)
+    post.delete()
+    return redirect('posts')

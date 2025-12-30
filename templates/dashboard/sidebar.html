@@ -18,7 +18,15 @@
             ">
                 Categories
             </a>
-            <a href="" class="nav-link text-dark">Post</a>
+            <a href="{% url 'posts' %}" class="nav-link text-dark
+                {% if '/posts/' in request.path %}
+                bg-danger
+                fw-bold
+                text-white
+                {% endif %}
+            ">
+                Post
+            </a>
             <a href="" class="nav-link text-dark">Logout</a>
         </div>
     </div>
